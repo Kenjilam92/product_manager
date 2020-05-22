@@ -1,11 +1,16 @@
 import React, {useState,useEffect} from 'react';
 import axios from 'axios';
-import {navigate} from "@reach/router"
+import {Router, Link, navigate} from "@reach/router"
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
-import Form from "./Components/Form"
+import Form from "./Components/Form";
+import List from "./Components/List";
+import Details from "./Components/Details";
 function App() {
   const [errors,setErrors]= useState({})
+  const [list, setList] = useState([])
+  const productApi = `http://localhost:8000/api/products`
+  // Post function
   const newProduct = e =>{ 
     console.log(e)
     axios.post('http://localhost:8000/api/products/new',e)
@@ -17,21 +22,30 @@ function App() {
       })
       .catch(err=>console.log("connection error",err));  
   }
+  const deleteProduct = e =>{}
+  
+  // Get All function
+  
+  useEffect (() =>{
+    axios.get (productApi)
+      .then (res => {
+        setList(res.data);
+      })
+      .catch (err=>console.log(err));
+  },[productApi]);
+
+  
+  
+
   return (
     <>
     <div className="container">
       <h1>Product Manager</h1>
       <Form toAxios={newProduct} errors={errors}/>
-      <table className="table table-bordered">
-        <thead className="thead-dark">
-          <tr> 
-            <th>Id</th>
-            <th>Title</th>
-            <th>Price</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-      </table>
+      <Router className="routebox">
+        <List list={list} path="/" toAxiosDelete={deleteProduct}/>
+        <Details path="/products/:id"/>
+      </Router>
     </div>
     </>
   );
