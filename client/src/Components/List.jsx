@@ -1,5 +1,6 @@
 import React from "react";
-import {Link} from "@reach/router";
+import {navigate} from "@reach/router";
+// import axios from "axios";
 const List = props => {
   const list= props.list;
   return(
@@ -16,11 +17,10 @@ const List = props => {
         <tr key={i}>
           <td>{i+1}</td>
           <td>{product.title}</td>
-          <td><nav>
-            <Link to= {`/products/${product._id}`} >Details </Link> 
-            <Link to= {`/products/edit/${product._id}`} > Edit </Link>  
-            <Link to= {`/products/delete/${product._id}`} > Delete </Link>
-            </nav></td>
+          <td><div className="btn-group rm-2">
+            <button className="btn btn-primary btn-sm" onClick={e=>navigate(`/products/${product._id}`)}> Details </button>
+            <button className="btn btn-danger btn-sm" onClick={e=>props.toAxiosDelete(product._id)}> Delete </button>
+          </div></td>
         </tr>
         )}
       </tbody>

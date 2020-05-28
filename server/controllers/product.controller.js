@@ -17,12 +17,12 @@ module.exports = {
             .catch(err=>res.json(err))
     },
     updateOne: (req,res)=>{
-        Product.findOneAndUpdate({_id:req.params.id},req.body)
+        Product.findOneAndUpdate({_id:req.params.id},req.body,{runValidators: true})
             .then(data=>res.json(data))
             .catch(err=>res.json(err))
     },
     deleteOne: (req,res)=>{
-        Product.findOneAndDelete({_id:req.params.id})
+        Product.deleteOne({_id:req.params.id})
             .then(data=>res.json(data))
             .catch(err=>res.json(err))
     }

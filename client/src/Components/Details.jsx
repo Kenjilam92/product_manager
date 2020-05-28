@@ -1,20 +1,23 @@
 import React,{useState,useEffect} from "react";
-import {Link} from "@reach/router";
+import {navigate} from "@reach/router";
 import axios from "axios";
 const Details = props =>{
-  const api = `http://localhost:8000/api/products/${props.id}`
   const [details,setDetails]=useState({})
+  
   useEffect(()=>{
-    axios.get(api)
+    axios.get(`http://localhost:8000/api/products/${props.id}`)
       .then(res =>setDetails(res.data))
       .catch(err=> console.log(err))
-  },[api])
+  },[props.id])
   return(
     <div className="container">
       <h2>{details.title}</h2>
       <p>Price: ${details.price}</p>
-      <p>Description: {details.desc}</p>
-      <Link className="btn btn-dark" to="/"> Back</Link>
+      <p>Description: {details.description}</p>
+      <div className="btn-group">
+        <button className="btn btn-dark" onClick={e=>navigate("/")}> Back</button>
+        <button className="btn btn-dark" onClick={e=>props.edit(details._id)}> Edit </button>
+      </div>
     </div>
   )
 }

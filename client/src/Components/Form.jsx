@@ -1,10 +1,22 @@
-import React,{useState} from "react"
-
+import React,{useState,useEffect} from "react"
+import axios from "axios"
 const Form = props => {
   const errors= props.errors
   const [title,setTitle]= useState("");
   const [price,setPrice]= useState(1);
   const [desc,setDesc]= useState("");
+  // const [update,setUpdate]=useState({})
+  useEffect (()=>{
+    console.log(props.select)
+    axios.get(`http://localhost:8000/api/products/${props.select}`)
+      .then (res => {
+        setTitle(res.data.title);
+        setPrice(res.data.price);
+        setDesc(res.data.description);
+      })
+      .catch (err=>console.log(err))  
+  },[props.select])
+
   const handleSubmit = e =>{
     e.preventDefault()
     const product = {
@@ -15,9 +27,13 @@ const Form = props => {
     setTitle("")
     setPrice(1)
     setDesc("")
-    props.toAxios(product)
+    if (props.select){
+      props.toAxiosUpdate(product,props.select)
+    }
+    else {
+      props.toAxiosCreate(product)
+    }
   }
-
   return(
     <form className="createProduct" onSubmit={handleSubmit}>
       <div className="form-group">
@@ -48,7 +64,7 @@ const Form = props => {
           placeholder={errors.description? errors.description.message : null}
         />
       </div>
-      <button className="btn btn-dark" type="submit">Create</button>
+      <button className="btn btn-dark" type="submit">{props.select? "Update": "Create"}</button>
     </form>
   );
 }

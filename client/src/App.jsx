@@ -1,6 +1,6 @@
 import React, {useState,useEffect} from 'react';
 import axios from 'axios';
-import {Router, Link, navigate} from "@reach/router"
+import {Router, navigate} from "@reach/router"
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import Form from "./Components/Form";
@@ -9,7 +9,21 @@ import Details from "./Components/Details";
 function App() {
   const [errors,setErrors]= useState({})
   const [list, setList] = useState([])
-  const productApi = `http://localhost:8000/api/products`
+  const [selectedProduct,setSelectedProduct]=useState("")
+  const [somethingChanged,setSomethingChanged]=useState(false)
+  // Get All function
+  useEffect (() =>{
+    fetchProduct ()
+  },[]);
+
+  const fetchProduct = () => {
+    axios.get ("http://localhost:8000/api/products")
+    .then (res => {
+      setList(res.data);
+    })
+    .catch (err=>console.log(err));
+  }
+
   // Post function
   const newProduct = e =>{ 
     console.log(e)
@@ -18,33 +32,44 @@ function App() {
         res.data.errors?
         setErrors(res.data.errors)
         :
-        navigate("/");
+        fetchProduct()
+        navigate("/")
       })
       .catch(err=>console.log("connection error",err));  
   }
-  const deleteProduct = e =>{}
+  // Detele function
+  const deleteProduct = e =>{
+    axios.delete(`http://localhost:8000/api/products/delete/${e}`)
+    .then(res=>{
+      res.data.errors?
+      setErrors(res.data.errors)
+      :
+      setSomethingChanged(true);
+    })
+    .catch(err=>console.log("connection error",err)); 
+  }
   
-  // Get All function
-  
-  useEffect (() =>{
-    axios.get (productApi)
-      .then (res => {
-        setList(res.data);
+  // Put function
+  const updateProduct = (e,id) =>{
+    console.log(e)
+    axios.put(`http://localhost:8000/api/products/edit/${id}`,e)
+      .then(res=>{
+        res.data.errors?
+        setErrors(res.data.errors)
+        :
+        fetchProduct();
       })
-      .catch (err=>console.log(err));
-  },[productApi]);
-
-  
-  
+      .catch(err=>console.log("connection error",err));  
+  }
 
   return (
     <>
     <div className="container">
       <h1>Product Manager</h1>
-      <Form toAxios={newProduct} errors={errors}/>
+      <Form toAxiosCreate={newProduct} fetch={fetchProduct} errors={errors} select={selectedProduct} toAxiosUpdate={updateProduct}/>
       <Router className="routebox">
         <List list={list} path="/" toAxiosDelete={deleteProduct}/>
-        <Details path="/products/:id"/>
+        <Details path="/products/:id" edit={setSelectedProduct}/>
       </Router>
     </div>
     </>
